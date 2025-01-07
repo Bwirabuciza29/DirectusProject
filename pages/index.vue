@@ -1,4 +1,3 @@
-
 <template>
   <form
     @submit.prevent="submitSubscription"
@@ -24,15 +23,6 @@
     >
       Souscrire
     </button>
-
-    <div class="mt-4">
-      <p v-if="successMessage" class="text-sm text-green-500">
-        {{ successMessage }}
-      </p>
-      <p v-if="errorMessage" class="text-sm text-red-500">
-        {{ errorMessage }}
-      </p>
-    </div>
   </form>
 </template>
 <script setup>
