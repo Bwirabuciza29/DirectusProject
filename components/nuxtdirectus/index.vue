@@ -77,7 +77,7 @@
             </p>
             <p class="text-sm text-gray-600 flex items-center gap-2">
               <i class="fas fa-map-marker-alt text-red-500"></i>
-              {{ product.city.name }}
+              {{ product.city }}
             </p>
           </div>
         </div>
