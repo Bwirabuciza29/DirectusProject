@@ -90,17 +90,6 @@
           </option>
         </select>
       </div>
-      <div class="mb-4">
-        <label for="thumbnail" class="block text-sm font-medium text-gray-700">
-          Image (Thumbnail)
-        </label>
-        <input
-          id="thumbnail"
-          type="file"
-          @change="handleFileUpload"
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
       <button
         type="submit"
         class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
@@ -119,21 +108,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
 const title = ref("");
 const price = ref("");
 const rooms = ref("");
 const bedrooms = ref("");
 const status = ref("");
 const city = ref("");
-const thumbnail = ref(null); // Stocke le fichier image
 
 const statusOptions = ref([]);
 const cityOptions = ref([]);
 
 const successMessage = ref("");
 const errorMessage = ref("");
-const { createItems, getItems, uploadFile } = useDirectusItems();
+const { createItems, getItems } = useDirectusItems();
 
 // Récupérer les options depuis Directus
 const fetchOptions = async () => {
@@ -142,7 +129,7 @@ const fetchOptions = async () => {
     const statusResponse = await getItems({
       collection: "product",
       params: {
-        fields: ["status"], // Assurez-vous que le champ "status" existe dans la collection "product"
+        fields: ["status"],
       },
     });
     statusOptions.value = [
@@ -162,32 +149,16 @@ const fetchOptions = async () => {
   }
 };
 
-// Gestion du fichier
-const handleFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    thumbnail.value = file;
-  }
-};
+// Appeler fetchOptions au montage du composant
+onMounted(() => {
+  fetchOptions();
+});
 
 const submitSubscription = async () => {
   successMessage.value = "";
   errorMessage.value = "";
 
   try {
-    let thumbnailId = null;
-
-    // Téléverser le fichier si un fichier est sélectionné
-    if (thumbnail.value) {
-      const formData = new FormData();
-      formData.append("file", thumbnail.value);
-
-      const uploadedFile = await uploadFile({
-        data: formData,
-      });
-      thumbnailId = uploadedFile.id; // Récupérer l'ID du fichier
-    }
-
     const items = [
       {
         title: title.value,
@@ -196,12 +167,10 @@ const submitSubscription = async () => {
         bedrooms: parseInt(bedrooms.value),
         status: status.value,
         city: city.value,
-        thumbnail: thumbnailId, // Lier l'image au produit
       },
     ];
     await createItems({ collection: "product", items });
     successMessage.value = "Enregistré avec succès";
-
     // Réinitialisation des champs
     title.value = "";
     price.value = "";
@@ -209,7 +178,6 @@ const submitSubscription = async () => {
     bedrooms.value = "";
     status.value = "";
     city.value = "";
-    thumbnail.value = null;
   } catch (e) {
     if (e?.data?.errors?.[0]?.extensions?.code === "RECORD_NOT_UNIQUE") {
       errorMessage.value = "Ce titre existe déjà.";
@@ -218,9 +186,4 @@ const submitSubscription = async () => {
     }
   }
 };
-
-// Appeler fetchOptions au montage du composant
-onMounted(() => {
-  fetchOptions();
-});
 </script>
