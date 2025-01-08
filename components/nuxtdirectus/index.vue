@@ -92,8 +92,6 @@
     </div>
   </div>
 </template>
-
-
 <script setup>
 const products = ref([]);
 const error = ref(null);
