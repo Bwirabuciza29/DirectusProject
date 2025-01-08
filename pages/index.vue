@@ -56,6 +56,40 @@
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
+      <div class="mb-4">
+        <label for="status" class="block text-sm font-medium text-gray-700">
+          Statut
+        </label>
+        <select
+          v-model="status"
+          id="status"
+          required
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option v-for="option in statusOptions" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label for="city" class="block text-sm font-medium text-gray-700">
+          Ville
+        </label>
+        <select
+          v-model="city"
+          id="city"
+          required
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option
+            v-for="option in cityOptions"
+            :key="option.id"
+            :value="option.id"
+          >
+            {{ option.name }}
+          </option>
+        </select>
+      </div>
       <button
         type="submit"
         class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
@@ -78,10 +112,47 @@ const title = ref("");
 const price = ref("");
 const rooms = ref("");
 const bedrooms = ref("");
+const status = ref("");
+const city = ref("");
+
+const statusOptions = ref([]);
+const cityOptions = ref([]);
 
 const successMessage = ref("");
 const errorMessage = ref("");
-const { createItems } = useDirectusItems();
+const { createItems, getItems } = useDirectusItems();
+
+// Récupérer les options depuis Directus
+const fetchOptions = async () => {
+  try {
+    // Récupérer les options de statut
+    const statusResponse = await getItems({
+      collection: "product",
+      params: {
+        fields: ["status"],
+      },
+    });
+    statusOptions.value = [
+      ...new Set(statusResponse.map((item) => item.status)),
+    ];
+
+    // Récupérer les villes
+    const cityResponse = await getItems({
+      collection: "city",
+      params: {
+        fields: ["id", "name"],
+      },
+    });
+    cityOptions.value = cityResponse;
+  } catch (e) {
+    console.error("Erreur lors de la récupération des options :", e);
+  }
+};
+
+// Appeler fetchOptions au montage du composant
+onMounted(() => {
+  fetchOptions();
+});
 
 const submitSubscription = async () => {
   successMessage.value = "";
@@ -94,6 +165,8 @@ const submitSubscription = async () => {
         price: parseFloat(price.value),
         rooms: parseInt(rooms.value),
         bedrooms: parseInt(bedrooms.value),
+        status: status.value,
+        city: city.value,
       },
     ];
     await createItems({ collection: "product", items });
@@ -103,6 +176,8 @@ const submitSubscription = async () => {
     price.value = "";
     rooms.value = "";
     bedrooms.value = "";
+    status.value = "";
+    city.value = "";
   } catch (e) {
     if (e?.data?.errors?.[0]?.extensions?.code === "RECORD_NOT_UNIQUE") {
       errorMessage.value = "Ce titre existe déjà.";
