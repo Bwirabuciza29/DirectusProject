@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="my-20">
     <form
       @submit.prevent="submitForm"
       class="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg"
