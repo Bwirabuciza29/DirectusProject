@@ -57,6 +57,7 @@
             <i class="fas fa-flag-checkered text-gray-500 mr-2 text-xl"></i>
             <span class="text-sm">{{ produit.status }}</span>
           </div>
+          <div v-html="produit.desc" class="text-justify"></div>
         </div>
 
         <!-- Icône flottante en arrière-plan -->
